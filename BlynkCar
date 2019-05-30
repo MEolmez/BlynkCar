@@ -1,0 +1,259 @@
+/* Comment this out to disable prints and save space */
+#define BLYNK_PRINT Serial
+
+#include <ESP8266WiFi.h>
+
+#include <BlynkSimpleEsp8266.h>
+
+
+
+char auth[] = "7e892f8b255846a996f824f5df96342d";
+
+
+char ssid[] = "";
+
+char pass[] = "";
+
+
+
+//Left Control
+BLYNK_WRITE(V1){
+  int pinValue = param.asInt(); // assigning incoming value from pin V1 to a variable
+  
+ Serial.print("V1 Slider value is: ");
+  Serial.println(pinValue);
+if (pinValue > 100 )
+  {    
+    
+    Serial.print("Reverse");
+    Serial.println(pinValue);
+    analogWrite(5,0);
+    analogWrite(4,pinValue);
+    
+
+  }
+  if (pinValue < -100 )
+  {
+    int speed = -(pinValue);
+    Serial.print("Forward");
+    Serial.println(speed);
+    analogWrite(4,0);
+    analogWrite(5,speed);
+    }
+
+ if(pinValue <250&&pinValue>-250){
+    analogWrite(4,0);
+    analogWrite(5,0);
+  }
+  }
+
+
+
+//Right Control
+ BLYNK_WRITE(V0){
+  int pinValue = param.asInt(); // assigning incoming value from pin V0 to a variable
+  
+ Serial.print("V0 Slider value is: ");
+  Serial.println(pinValue);
+if (pinValue > 100 )
+  {    
+    
+    Serial.print("Reverse");
+    Serial.println(pinValue);
+    analogWrite(12,0);
+    analogWrite(14,pinValue);
+    
+
+  }
+  if (pinValue < -100 )
+  {
+    int speed = -(pinValue);
+    Serial.print("Forward");
+    Serial.println(speed);
+    analogWrite(14,0);
+    analogWrite(12,speed);
+    }
+
+ if(pinValue <250&&pinValue>-250){
+    analogWrite(12,0);
+    analogWrite(14,0);
+  }
+  }
+
+
+//Left Turn
+BLYNK_WRITE(V2){
+  int pinValue = param.asInt(); // assigning incoming value from pin V1 to a variable
+  
+  Serial.println(pinValue);
+if (pinValue == 1 )
+  {    
+        digitalWrite(5,HIGH);        
+        digitalWrite(4,LOW);
+        analogWrite(14,1023);        
+        digitalWrite(12,LOW);     
+
+  }
+
+  else{
+        analogWrite(5,0);
+        analogWrite(4,0);
+        analogWrite(12,0);
+        analogWrite(14,0);        
+    
+    }
+  }
+
+
+
+//Left Turn
+BLYNK_WRITE(V3){
+  int pinValue = param.asInt(); // assigning incoming value from pin V1 to a variable
+  
+  Serial.println(pinValue);
+if (pinValue == 1 )
+  {    
+        digitalWrite(5,LOW);        
+        digitalWrite(4,HIGH);
+        analogWrite(14,0);        
+        analogWrite(12,1023);     
+
+  }
+
+  else{
+        analogWrite(5,0);
+        analogWrite(4,0);
+        analogWrite(12,0);
+        analogWrite(14,0);        
+    
+    }
+  }
+
+
+   //Half Forward
+BLYNK_WRITE(V4){
+  int pinValue = param.asInt(); // assigning incoming value from pin V1 to a variable
+  
+  Serial.println(pinValue);
+if (pinValue == 1 )
+  {    
+        analogWrite(4,0);
+        analogWrite(5,500); 
+        analogWrite(14,0);
+        analogWrite(12,500);   
+
+  }
+
+else{
+        analogWrite(5,0);
+        analogWrite(4,0);
+        analogWrite(12,0);
+        analogWrite(14,0);     
+    
+    }
+  
+  }
+
+  
+   //Half Backward
+BLYNK_WRITE(V5){
+  int pinValue = param.asInt(); // assigning incoming value from pin V1 to a variable
+  
+  Serial.println(pinValue);
+if (pinValue == 1 )
+  {    
+        analogWrite(4,500);
+        analogWrite(5,0); 
+        analogWrite(14,500);
+        analogWrite(12,0);      
+
+  }
+
+  else{
+        analogWrite(5,0);
+        analogWrite(4,0);
+        analogWrite(12,0);
+        analogWrite(14,0);     
+    }
+    
+  }
+
+
+
+   //Full Backward
+BLYNK_WRITE(V6){
+  int pinValue = param.asInt(); // assigning incoming value from pin V1 to a variable
+  
+  Serial.println(pinValue);
+if (pinValue == 1 )
+  {    
+        analogWrite(4,1000);
+        analogWrite(5,0); 
+        analogWrite(14,1000);
+        analogWrite(12,0);      
+
+  }
+
+  else{
+        analogWrite(5,0);
+        analogWrite(4,0);
+        analogWrite(12,0);
+        analogWrite(14,0);     
+    }
+    
+  }
+
+
+     //Full Forward
+BLYNK_WRITE(V7){
+  int pinValue = param.asInt(); // assigning incoming value from pin V1 to a variable
+  
+  Serial.println(pinValue);
+if (pinValue == 1 )
+  {    
+        analogWrite(4,0);
+        analogWrite(5,1000); 
+        analogWrite(14,0);
+        analogWrite(12,1000);   
+
+  }
+
+else{
+        analogWrite(5,0);
+        analogWrite(4,0);
+        analogWrite(12,0);
+        analogWrite(14,0);     
+    
+    }
+  
+  }
+
+  
+void setup() {
+
+// Debug console Serial.begin(115200);
+Serial.begin(9600);
+Blynk.begin(auth, ssid, pass);
+pinMode(4,OUTPUT);
+pinMode(5,OUTPUT);
+
+// You can also specify server:
+
+//Blynk.begin(auth, ssid, pass, "blynk-cloud.com", 8442);
+
+//Blynk.begin(auth, ssid, pass, IPAddress(192,168,1,100), 8442);
+
+
+
+}
+
+void loop()
+
+{
+
+Blynk.run(); // You can inject your own code or combine it with other sketches.
+
+
+}
+
+
