@@ -1,0 +1,148 @@
+#include <SPI.h>      //the communication interface with the modem
+#include "RF24.h"     //the library which helps us to control the radio modem (nRF24L)
+
+#define BRAKEVCC 0
+#define CW   1
+#define CCW  2
+#define BRAKEGND 3
+#define CS_THRESHOLD 100
+
+
+int inApin[2] = {7, 4};  // INA: Clockwise input
+int inBpin[2] = {8, 9}; // INB: Counter-clockwise input
+int pwmpin[2] = {5, 6}; // PWM input
+//int cspin[2] = {2, 3}; // CS: Current sense ANALOG input
+int enpin[2] = {0, 1}; // EN: Status of switches output (Analog pin)
+//int 255 = 255;
+
+int data[2];
+
+RF24 radio(2, 3); //10 and 9 are a digital pin numbers to which signals CE and CSN are connected
+
+const uint64_t pipe = 0xE8E8F0F0E1LL; //the address of the modem,that will receive data from the Arduino
+
+
+
+void setup() {
+  Serial.begin(9600);
+
+  radio.begin();                    //it activates the modem
+  radio.openReadingPipe(1, pipe);   //determines the address of our modem which receive data
+  radio.startListening();           //enable receiving data via modem
+  Serial.print("wörking");
+
+  // Initialize digital pins as outputs
+  for (int i=0; i<2; i++)
+  {
+    pinMode(inApin[i], OUTPUT);
+    pinMode(inBpin[i], OUTPUT);
+    pinMode(pwmpin[i], OUTPUT);
+    //pinMode(enpin[i], OUTPUT);
+  }
+  // Initialize braked
+  for (int i=0; i<2; i++)
+  {
+    digitalWrite(inApin[i], LOW);
+    digitalWrite(inBpin[i], LOW);
+  }
+  // motorGo(0, //CW, 255);
+  // motorGo(1, C//CW, 255);
+  //pinMode(A0, OUTPUT);
+  //pinMode(A1, OUTPUT);
+
+
+}
+
+
+
+void loop() {
+  if (radio.available()) {
+    radio.read(data, sizeof(data));
+        //enable motors
+    //digitalWrite(A0, HIGH);
+    //digitalWrite(A1, HIGH);
+    //Serial.print("Data X:"); Serial.println(data[0]);
+    //Serial.print("Data Y:"); Serial.println(data[1]);
+       
+    //right
+    if (data[0] > 500 && data[0] < 600 && data[1] < 100 ) {
+      motorGo(0, CCW, 255);
+      motorGo(1, CW, 255);
+      //Serial.println("right");
+      delay(10);
+      
+    }
+
+    //left
+    if (data[0] > 500 && data[0] < 600 && data[1] > 700) {
+      motorGo(1, CCW, 255);
+      motorGo(0, CW, 255);
+      //Serial.println("left");
+      delay(10);
+    }
+
+    //forwards
+    if (data[0] < 100 && data[1] < 600 && data[1] > 450) {
+      motorGo(0, CW, 255);
+      motorGo(1, CW, 255); 
+      //Serial.println("forwards");   
+      delay(10);
+    }
+
+    //backwards
+    if (data[0] > 900 && data[1] < 600 && data[1] > 450) {
+      motorGo(0, CCW, 255);
+      motorGo(1, CCW, 255);
+      //Serial.println("backwards");
+      delay(10);
+    }
+    
+   /* else {
+      //Serial.println("stop1");
+      motorGo(0, CCW, 0);
+      motorGo(1, CW, 0);
+      delay(10);
+
+    }
+  */
+
+  }
+  else {
+    //Serial.println("stop2");
+    
+    motorGo(0, CCW, 0);
+    motorGo(1, CW, 0);
+    delay(10);
+      //enable motors
+    //digitalWrite(A0, HIGH);
+    //digitalWrite(A1, HIGH);
+    
+  }
+  
+}
+
+
+
+
+void motorGo(uint8_t motor, uint8_t direct, uint8_t pwm)
+{
+  if (motor <= 1)
+  {
+    if (direct <=4)
+    {
+      // Set inA[motor]
+      if (direct <=1)
+        digitalWrite(inApin[motor], HIGH);
+      else
+        digitalWrite(inApin[motor], LOW);
+
+      // Set inB[motor]
+      if ((direct==0)||(direct==2))
+        digitalWrite(inBpin[motor], HIGH);
+      else
+        digitalWrite(inBpin[motor], LOW);
+
+      analogWrite(pwmpin[motor], pwm);
+    }
+  }
+}
